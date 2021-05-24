@@ -6,7 +6,7 @@
 /*   By: aderose <aderose@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 12:05:16 by aderose           #+#    #+#             */
-/*   Updated: 2021/05/24 12:31:16 by tonyd            ###   ########.fr       */
+/*   Updated: 2021/05/24 14:01:14 by tonyd            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,51 +64,44 @@ static char			*read_buf(int fd, char *cur, int *ret, char **line)
 	int		pos;
 
 	pos = pos_new_line(cur);
-	if (*ret == 1)
+	if (read(fd, buf, 0) < 0)
+		return (NULL);
+	while (pos == -1 && ((*ret = read(fd, buf, BUFFER_SIZE)) > 0))
 	{
-		while (pos == -1 && ((*ret = read(fd, buf, BUFFER_SIZE)) > 0))
-		{
-			buf[*ret] = '\0';
-			if (!(cur = strjoinfree(cur, buf)))
-				return (NULL);
-			pos = pos_new_line(cur);
-		}
-		if (*ret > 0)
-		{
-			if (pos != -1)
-				if (!(cur = split_lines(line, cur, pos)))
-					return (NULL);
-			*ret = 1;
-		}
+		buf[*ret] = '\0';
+		if (!(cur = strjoinfree(cur, buf)))
+			return (NULL);
+		pos = pos_new_line(cur);
 	}
+	if (pos != -1)
+	{
+		if (!(cur = split_lines(line, cur, pos)))
+			return (NULL);
+	}
+	if (*ret > 0)
+		*ret = 1;
 	return (cur);
 }
 
 int					get_next_line(int fd, char **line)
 {
-	static char	*cur = NULL;
-	static int	ret = 1;
+	static char		*cur = NULL;
+	int				ret;
 
+	ret = 1;
 	if (check_error(fd, &cur, line) == -1)
 		return (-1);
 	if (!(cur = read_buf(fd, cur, &ret, line)))
 		return (-1);
-	if (ret <= 0)
+	if (ret == 0)
 	{
-		if (ret == -3)
-			*line = ft_strdup("\0");
-		else if (ret == -2)
+		if (cur)
 		{
 			*line = ft_strdup(cur);
 			ft_free(&cur);
-			ret = -3;
 		}
-		else if (ret == 0)
-		{
-			ret = -2;
-			*line = ft_strdup(cur);
-		}
-		return (0);
-	}	
-	return (1);
+		else
+			*line = ft_strdup("\0");
+	}
+	return (ret);
 }
