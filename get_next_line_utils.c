@@ -6,7 +6,7 @@
 /*   By: aderose <aderose@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 12:06:23 by aderose           #+#    #+#             */
-/*   Updated: 2021/05/24 10:29:03 by tonyd            ###   ########.fr       */
+/*   Updated: 2021/07/12 18:09:50 by tonyd            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,35 +48,6 @@ char		*ft_strdup(char *s1)
 	return (str);
 }
 
-char		*strjoinfree(char *s1, char *s2)
-{
-	char	*str;
-	int		i;
-
-	str = NULL;
-	i = 0;
-	if (!s1)
-	{
-		if (!(str = ft_substr(s2, 0, ft_strlen(s2))))
-			return (NULL);
-		return (str);
-	}
-	str = (char*)malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
-	while (s1[i])
-	{
-		str[i] = s1[i];
-		i++;
-	}
-	while (*s2)
-	{
-		str[i] = *s2++;
-		i++;
-	}
-	str[i] = '\0';
-	ft_free(&s1);
-	return (str);
-}
-
 char		*ft_substr(char *s, unsigned int start, size_t len)
 {
 	char	*str;
@@ -97,3 +68,30 @@ char		*ft_substr(char *s, unsigned int start, size_t len)
 	str[i] = '\0';
 	return (str);
 }
+
+char		*strjoinfree(char *s1, char *s2)
+{
+	char	*str;
+	int		i;
+
+	str = NULL;
+	i = 0;
+	if (!s1)
+	{
+		if (!(str = ft_substr(s2, 0, ft_strlen(s2))))
+			return (NULL);
+		return (str);
+	}
+	str = (char*)malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	while (s1[i])
+	{
+		str[i] = s1[i];
+		i++;
+	}
+	while (*s2)
+		str[i++] = *s2++;
+	str[i] = '\0';
+	ft_free(&s1);
+	return (str);
+}
+
