@@ -6,11 +6,12 @@
 /*   By: aderose <aderose@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 12:04:51 by aderose           #+#    #+#             */
-/*   Updated: 2021/09/06 16:36:53 by aderose          ###   ########.fr       */
+/*   Updated: 2020/08/23 13:32:57 by aderose          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+
+#ifndef FT_GET_NEXT_LINE_H
+# define FT_GET_NEXT_LINE_H
 # include <sys/types.h>
 # include <sys/uio.h>
 # include <unistd.h>
@@ -20,10 +21,10 @@
 # include <sys/stat.h>
 
 int				get_next_line(int fd, char **line);
-void			my_free(char **s);
-size_t			my_strlen(const char *str);
-char			*strjoinfree(char *s1, char *s2);
-char			*my_strdup(char *s1);
-char			*my_substr(char *s, unsigned int start, size_t len);
+void			ft_free(char **s);
+size_t			ft_strlen(const char *str);
+char			*ft_strjoin(char *s1, char *s2);
+char			*ft_strchr(char *s, int c);
+char			*ft_substr(char *s, unsigned int start, size_t len);
 
 #endif

@@ -6,13 +6,13 @@
 /*   By: aderose <aderose@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 12:05:16 by aderose           #+#    #+#             */
-/*   Updated: 2021/09/06 16:46:04 by aderose          ###   ########.fr       */
+/*   Updated: 2020/08/23 13:22:46 by aderose          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static int	pos_new_line(char *str)
+static int			pos_new_line(char *str)
 {
 	size_t	i;
 
@@ -29,88 +29,68 @@ static int	pos_new_line(char *str)
 	return (-1);
 }
 
-static int	check_error(int fd, char **cur, char **line)
+static void			separate_lines(char **line, char **next, char *tmp)
 {
-	if (!line || fd < 0 || BUFFER_SIZE < 1)
-		return (-1);
-	if (!*cur)
+	if (tmp)
 	{
-		*cur = (char *)malloc(BUFFER_SIZE + 1);
-		if (!*cur)
+		*line = ft_substr(*next, 0, pos_new_line(*next));
+		ft_free(next);
+		*next = ft_substr(tmp, 1, ft_strlen(tmp));
+	}
+	else
+		*line = ft_substr(*next, 0, ft_strlen(*next));
+	ft_free(&tmp);
+}
+
+static int			read_buf(int fd, char *buf, char **cur, char **line)
+{
+	ssize_t ret;
+	int		end;
+
+	*buf = '\0';
+	while (pos_new_line(*cur) == -1 &&
+			(ret = read(fd, buf, BUFFER_SIZE)) > 0)
+	{
+		buf[ret] = '\0';
+		*cur = ft_strjoin(*cur, buf);
+	}
+	end = ret == 0 ? 1 : 0;
+	if (*cur == NULL)
+	{
+		end = 0;
+		if (!(*line = (char*)malloc(1)))
 			return (-1);
-		*cur[0] = '\0';
+		**line = '\0';
+	}
+	ft_free(&buf);
+	return (end);
+}
+
+int					get_next_line(int fd, char **line)
+{
+	char			*buf;
+	static char		*current = NULL;
+	char			*new_line;
+	int				is_end;
+
+	buf = NULL;
+	if (!line || fd < 0 || read(fd, buf, 0) < 0 || BUFFER_SIZE < 1)
+		return (-1);
+	if (!(buf = (char*)malloc(BUFFER_SIZE + 1)))
+		return (-1);
+	new_line = NULL;
+	is_end = 0;
+	if ((is_end = read_buf(fd, buf, &current, line)) == -1)
+		return (-1);
+	if ((new_line = ft_strchr(current, '\n')) != NULL)
+	{
+		separate_lines(line, &current, new_line);
+		return (1);
+	}
+	if (is_end == 1)
+	{
+		*line = ft_substr(current, 0, ft_strlen(current));
+		ft_free(&current);
 	}
 	return (0);
-}
-
-static char	*split_lines(char **line, char *cur, int pos)
-{
-	char	*tmp;
-
-	tmp = NULL;
-	*line = my_substr(cur, 0, pos);
-	if (!*line)
-		return (NULL);
-	tmp = my_substr(cur, pos + 1, my_strlen(cur) - pos + 1);
-	if (!tmp)
-		return (NULL);
-	my_free(&cur);
-	cur = my_strdup(tmp);
-	if (!cur)
-		return (NULL);
-	my_free(&tmp);
-	return (cur);
-}
-
-static char	*read_buf(int fd, char *cur, int *ret, char **line)
-{
-	char	buf[BUFFER_SIZE + 1];
-	int		pos;
-
-	pos = pos_new_line(cur);
-	if (read(fd, buf, 0) < 0)
-		return (NULL);
-	*ret = 1;
-	while (pos == -1 && *ret > 0)
-	{
-		*ret = read(fd, buf, BUFFER_SIZE);
-		buf[*ret] = '\0';
-		cur = strjoinfree(cur, buf);
-		if (!cur)
-			return (NULL);
-		pos = pos_new_line(cur);
-	}
-	if (pos != -1)
-	{
-		cur = split_lines(line, cur, pos);
-		if (!cur)
-			return (NULL);
-	}
-	if (*ret > 0)
-		*ret = 1;
-	return (cur);
-}
-
-int	get_next_line(int fd, char **line)
-{
-	static char	*cur = NULL;
-	int			ret;
-
-	ret = 1;
-	if (check_error(fd, &cur, line) == -1)
-		return (-1);
-	cur = read_buf(fd, cur, &ret, line);
-	if (!cur)
-		return (-1);
-	if (ret == 0)
-	{
-		if (cur)
-		{
-			*line = my_strdup(cur);
-			my_free(&cur);
-		}
-		else
-			*line = my_strdup("\0");
-	}
-	return (ret);
 }

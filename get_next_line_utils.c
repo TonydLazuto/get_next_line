@@ -6,21 +6,21 @@
 /*   By: aderose <aderose@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 12:06:23 by aderose           #+#    #+#             */
-/*   Updated: 2021/09/06 16:48:15 by aderose          ###   ########.fr       */
+/*   Updated: 2020/07/16 16:08:39 by aderose          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	my_free(char **s)
+void		ft_free(char **s)
 {
 	free(*s);
 	*s = NULL;
 }
 
-size_t	my_strlen(const char *str)
+size_t		ft_strlen(const char *str)
 {
-	size_t	i;
+	size_t i;
 
 	i = 0;
 	if (str != NULL)
@@ -31,64 +31,69 @@ size_t	my_strlen(const char *str)
 	return (i);
 }
 
-char	*my_strdup(char *s1)
+char		*ft_strchr(char *s, int c)
 {
 	char	*str;
 	size_t	i;
 
 	i = 0;
-	str = (char *)malloc(my_strlen(s1) * sizeof(char) + 1);
-	if (!str)
+	str = NULL;
+	if (!s)
 		return (NULL);
-	while (i < my_strlen(s1))
+	while (s[i] != '\0')
 	{
-		str[i] = s1[i];
+		if (s[i] == c)
+		{
+			str = ft_substr(s, i, ft_strlen(s));
+			return (str);
+		}
 		i++;
 	}
-	str[i] = '\0';
-	return (str);
-}
-
-char	*strjoinfree(char *s1, char *s2)
-{
-	char	*str;
-	int		i;
-
-	i = 0;
-	if (!s1)
+	if (s[i] == c)
 	{
-		str = my_substr(s2, 0, my_strlen(s2));
-		if (!str)
-			return (NULL);
+		str = ft_substr(s, i, ft_strlen(s));
 		return (str);
 	}
-	str = (char *)malloc(my_strlen(s1) + my_strlen(s2) + 1);
-	while (s1[i])
+	return (NULL);
+}
+
+char		*ft_strjoin(char *s1, char *s2)
+{
+	char	*str;
+	size_t	i;
+	size_t	j;
+
+	if (!s1)
 	{
-		str[i] = s1[i];
-		i++;
+		s1 = ft_substr(s2, 0, ft_strlen(s2));
+		return (s1);
 	}
+	if (!(str = (char*)malloc(ft_strlen(s1) + ft_strlen(s2) + 1)))
+	{
+		ft_free(&s1);
+		return (NULL);
+	}
+	i = 0;
+	j = 0;
+	while (s1[j])
+		str[i++] = s1[j++];
 	while (*s2)
-	{
-		str[i] = *s2++;
-		i++;
-	}
+		str[i++] = *s2++;
 	str[i] = '\0';
-	my_free(&s1);
+	ft_free(&s1);
 	return (str);
 }
 
-char	*my_substr(char *s, unsigned int start, size_t len)
+char		*ft_substr(char *s, unsigned int start, size_t len)
 {
 	char	*str;
 	size_t	i;
 
 	if (!s)
 		return (NULL);
-	if (start >= my_strlen(s))
+	if (start >= ft_strlen(s))
 		len = 0;
-	str = (char *)malloc(len + 1);
-	if (!str)
+	if (!(str = (char*)malloc(len + 1)))
 		return (NULL);
 	i = 0;
 	while (i < len && s[i + start] != '\0')
